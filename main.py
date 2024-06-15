@@ -68,8 +68,11 @@ def parse_html():
     driver.get(url)
     driver.implicitly_wait(20)  # wait 20 seconds max for elements to load
 
-    close_modal_button = driver.find_element(By.CLASS_NAME, "leadinModal-close")
-    close_modal_button.click()
+    try:
+        close_modal_button = driver.find_element(By.CLASS_NAME, "leadinModal-close")
+        close_modal_button.click()
+    except selenium.common.exceptions.NoSuchElementException:
+        print('No modal to close')
 
     while True:
         try:
@@ -86,7 +89,6 @@ def parse_html():
     print('Finished parsing')
     return html_content
 
-
 def get_my_funds(soup):
     """
     Gets a formatted array of all applicable funds
@@ -101,7 +103,6 @@ def get_my_funds(soup):
             my_funds.append(current_fund)
 
     return my_funds
-
 
 def get_current_fund(fund):
     """
@@ -150,7 +151,6 @@ def get_current_fund(fund):
 
     return current_fund
 
-
 def calculate_compound_interest_with_deposits(rate, fees, sacrifice, employer):
     """
     Calculates your final balance with the fund
@@ -168,7 +168,6 @@ def calculate_compound_interest_with_deposits(rate, fees, sacrifice, employer):
 
     return round(future_value, 2)
 
-
 def calculate_yearly_contribution(sacrifice, employer):
     """
     Calculate the yearly deposit based on your income
@@ -177,20 +176,17 @@ def calculate_yearly_contribution(sacrifice, employer):
     govt_contribution = min(yearly_contribution, GOVT_CONTRIBUTION)
     return yearly_contribution + govt_contribution
 
-
 def calculate_principal_interest(final_rate: float):
     """
     Calculate the compound interest on the initial principal
     """
     return CURRENT_BALANCE * ((1 + final_rate) ** YEARS_LEFT)
 
-
 def calculate_contributions_interest(yearly_contribution: float, final_rate: float):
     """
     Calculate the compound interest on the additional yearly deposits
     """
     return yearly_contribution * (((1 + final_rate) ** YEARS_LEFT) - 1) * (1 / final_rate)
-
 
 def write_json_csv_files(my_funds):
     """
@@ -206,7 +202,6 @@ def write_json_csv_files(my_funds):
         write.writerows(my_funds)
         print('Written to CSV')
 
-
 def reformat_for_json(my_funds):
     """
     Formats the funds list for a json file
@@ -218,7 +213,6 @@ def reformat_for_json(my_funds):
         json_funds.append(dict(zip(headers, fund)))
 
     return json_funds
-
 
 def get_headers():
     """
@@ -252,7 +246,6 @@ def get_headers():
         'Estimated Final Balance (Salary Sacrifice at 10%, ' +
         'Employer Contribution at 4% and Government Contribution)'
     ]
-
 
 if __name__ == '__main__':
     main()
